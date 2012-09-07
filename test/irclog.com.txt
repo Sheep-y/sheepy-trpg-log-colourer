@@ -1,0 +1,103 @@
+Network: freenode
+Channel: #php
+
+[00:00]<z2svzzcv>aight then
+[00:00]<rrppygrvnm>nerd_: you want to look at a database server manpage for that. it's not relevant to php.
+[00:00]<wjlllrws>ha?
+[00:00]<drvvdaa>Not to be confused with CBDR.
+[00:00]<drgmrg0w0>How do I access simplexml elements that have namespaces? for instance $xml->item1-> (<moo:Blah ...>)
+[00:00]<dznf>No thoughts on the "default:" getting prepended to my html tags by transformToXML()? The output is here -- http://pastebin.com/mc877b84 The XML is here -- http://pastebin.com/m26ef89da And the XSL is here -- http://pastebin.com/m41694a97
+[00:00]<dryzdrg>caffinated, ok thanks
+[00:00]<pluw_>ue, I guess the question I should be asking, is on bigggg loops, what should I be doing to make sure it doesn't totally mess up. I think the problem is its getting overloaded, my music I have playing is stopping and starting because apache/php is using so much resources...
+[00:01]<z2svzzcv>fLUx_: buy a faster computer?
+[00:01]<dryzdrg>caffinated, also, is there an array storing all these public properties?
+[00:01]<drgmrg0w0>My question got a little drowned out there.. Can I access simplexml elements that have namespaces?
+[00:02]<z2svzzcv>DanMan010: no it didn't, i saw it, it's still on my screen
+[00:02]<z2svzzcv>DanMan010: not even half way up either
+[00:02]<un>fLUx_, I think you algoritm is by for not an opitmal one
+[00:03]<z2svzzcv>nerd_: caffinated is right. to help you on your way to your goal though try http://php.net/fgetcsv
+[00:03]<pluw_>yes I know ue, I will work on making it better than it is later, just trying to get it to work first....
+[00:03]<drgmrg0w0>abstrakt, 2 really large paragraphs immediately following my one liner question doesnt make it drowned out?
+[00:03]<drgmrg0w0>heh
+[00:03]<z2svzzcv>fLUx_: wtf does ue mean? you've said it twice now
+[00:03]<rrppygrvnm>daYZman: http://php.net/get_object_vars
+[00:03]<z2svzzcv>DanMan010: no, it doesn't
+[00:03]<pluw_>ue, person ^^
+[00:04]<un>:D
+[00:04]<drgmrg0w0>In your opinion I guess
+[00:04]<z2svzzcv>!tell fLUx_ about u
+[00:04]<z2svzzcv>oh wait
+[00:04]<z2svzzcv>nm... freakin two char long nicknames
+[00:04]<un>fLUx_, well I may not be right but you are resorting all the data on each story interation ?
+[00:04]<z2svzzcv>there should be a min limit
+[00:04]<un>no it shouldn't :)
+[00:04]<pluw_>yes ue
+[00:04]<dryzdrg>caffinated, thanks again
+[00:04]<un>fLUx_, is that intendent ?
+[00:05]<dznf>I've found if either I get the default: stuck in front of html tags if I have xmlns:default="http://www.w3.org/1999/xhtml" in my stylesheet, if I leave it out, I get a bunch of warnings about Namespace prefix default on html is not defined, Namespace prefix default is not defined on head, etc.
+[00:05]<dznf>I don't know how to both avoid the warnings and not break the tags.
+[00:05]<pluw_>umm I dont think so, this is my first attempt at something other than CRUD websites and basic scripts.....I'm not sure how I should be handling data...
+[00:06]<un>well, if you can explain more in detail I can help with this before I got nap
+[00:07]<un>fLUx_, and provide sample data
+[00:07]<pluw_>i.e. what I want to compare?
+[00:08]<pluw_>ill paste some imput > output, 1 min
+[00:09]<un>fLUx_, oh and $class is a stupid name for a class :)
+[00:09]<lyenus>is there a quick way to convert an array to a formatted string? like if i had an array like this http://pastebin.com/mcfa58d8 and convert it to the string "potato, tomato, ducks"?
+[00:09]<un>$string=implode(', ', $array);
+[00:10]<lyenus>alright
+[00:10]<drgmrg0w0>How do I access an element like this in simplexml? <moo:Data>Blah</moo:Data> (im looping over an array of elements)
+[00:10]<advx>Drel I suspect it's something in your xsl
+[00:10]<lyenus>ty
+[00:10]<un>np
+[00:10]<rrppygrvnm>LiENUS: http://php.net/vsprintf
+[00:10]<rrppygrvnm>implode is formatted, but fairly inflexable.
+[00:11]<dryzdrg>so if i have a variable in $table = 'dog' and also an array in the same class $dog, would is_array($this->$table) return true?
+[00:11]<advx>Drel, are you using an xhtml xmlns and doctype?
+[00:11]<lyenus>caffinated, will vsprintf work if i dont know the size of the array?
+[00:11]<drgmrg0w0>daYZman, is_array($this->member)
+[00:11]<dznf>cyth: It is. If I remove the namespace declaration from the xsl:stylesheet node, the page renders fine without the tags being altered to default:<tagname>. However, I get a bunch of warnings: "Warning: DOMDocument::load() [function.DOMDocument-load]: Namespace prefix default on html is not defined in file:///C%3A/Program%20Files/Apache%20Software%20Foundation/Apache2.2/htdocs/output.xsl,...
+[00:11]<rrppygrvnm>LiENUS: yes, however it will only use the values you define placeholders for, the same way printf and sprintf work
+[00:11]<dznf>...line: 10 in C:\Program Files\Apache Software Foundation\Apache2.2\htdocs\test.php on line 6". If I add the namespace in, the warnings go away, but then the tags are broken.
+[00:12]<lyenus>caffinated, yeah i dont know how big the array is
+[00:12]<lyenus>its an array of fileids to retrieve from a database could contain 1, could contain 2 million i dont know how many
+[00:12]<advx>Drel, are you trying to tansform to xml or html?
+[00:12]<dznf>cyth: the output is here -- http://pastebin.com/mc877b84 The XML is here -- http://pastebin.com/m26ef89da And the XSL is here -- http://pastebin.com/m41694a97
+[00:12]<dznf>cyth: html
+[00:12]<pluw_>OK, really hard to explain what im trying to do, but this is the kind of output im wanting, http://pastebin.com/mc77d57e, and the imput is from 2 sources, I split the strings into words, and compare the 2 sources in loops
+[00:12]<pluw_>if that makes sence
+[00:13]<lyenus>vsprintf would work better though if i knew the size
+[00:13]<vzylls>well at least for ($i = "a", $j = 1; $j <= 5000; $j++, $i++) echo $i; gives me expected results ;)
+[00:13]<advx>Drel, so you aren't wanting to do XHTML?
+[00:13]<dznf>cyth: but as far as I know, there's no transformToHTML method to the XSLTProcessor class.
+[00:13]<un>LiENUS, use implode, try if is suits your needs
+[00:13]<dryzdrg>DanMan010, hmm you mean without the $ infront of member?
+[00:13]<advx>Drel, you want transformToURI
+[00:13]<lyenus>ue, it will its not quite exactly what i need but i just need to do a little more formatting
+[00:13]<dznf>cyth: doesn't that output to disk?
+[00:13]<lyenus>i actually want to quote the values as well for a sleect where field in (list) query...
+[00:13]<advx>Drel, no it outputs to a uri
+[00:14]<advx>Drel, php://output
+[00:14]<advx>:p
+[00:14]<pluw_>Everything works when I'm doing 50x of the loops...................but if I try to do 10,000 of them, it starts messing up? I dont understand that....
+[00:14]<dznf>cyth: how would I output to stdout from transformToUri?
+[00:14]<un>you can do a foreach ($line as $key => $value) for that, modify the array then implode
+[00:14]<advx>Drel, I just told you: php://output
+[00:14]<lyenus>ue, if i were doing that i may as well just have the foreach do the job of implode :P
+[00:14]<dryzdrg>DanMan010, as in is_array($this->table)?
+[00:15]<drgmrg0w0>daYZman class Moo { public $dogs = array('lab'); public function __construct() { if(is_array($this->dogs) { echo 'Its an array!'; } } }
+[00:15]<un>well, the write a custom function :)
+[00:15]<un>*then
+[00:15]<advx>Drel, $xsl->transformToURI($xml, 'php://output');
+[00:15]<dryzdrg>DanMan010, what if there's a dollar sign, i.e. is_array($this->$dogs)?
+[00:15]<drgmrg0w0>daYZman, I dont believe thats valid
+[00:16]<lyenus>ue, ctually $var = "'" . implode("', '" $array) . "'"; is what i need i believe
+[00:16]<dryzdrg>DanMan010, i'm looking at this code and $this->$table is being used
+[00:16]<lyenus>just a little bit of error checking and it should be good...
+[00:16]<drgmrg0w0>daYZman, Whats your point..
+[00:16]<gcgguss>daYZman, in this case, teh content of $table is used to determine the property you're accessing
+[00:16]<dznf>cyth: Got it. That unfortunately shows the same problem.
+[00:16]<dryzdrg>DanMan010, http://rafb.net/p/oVYpit45.html
+[00:17]<vzylls>interesting that eval @v = 'a'..'zz'; in perl gives you a through zz but in php foreach (range('a', 'zz') as $letter) echo $letter; only gives a through z
+[00:17]<vfv>Hello. What is the fastest way to restore an array from a cache file? unserialize($serial_string), include($php_file) or eval($php_string)?
+[00:17]<un>fLUx_, that with what should be compared ?
+[00:17]<pluw_>how do you mean ue?

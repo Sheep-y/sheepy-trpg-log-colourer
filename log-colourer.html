@@ -148,7 +148,8 @@
    <div id='dnd' ondrop="dragdrop_drop(event)" ondragover="dragdrop_check(event)" ondragleave="dragdrop_hide(event)"><!--Drag ang Drop overlay --></div>
    <textarea id="txt_input"></textarea>
    <a class='button' href='https://code.google.com/p/sheepy-trpg-log-colourer/issues' id='action_input_lnk_bug' style='float:right'>lnk_bug</a>
-   <a class='button' href='javascript:convertText(convertToText)' id='action_input_lnk_txt'>to_txt</a>
+   <a class='button' href='javascript:convertText(HtmlToIrc)' id='action_input_lnk_irc'>to_irc</a>
+   <a class='button' href='javascript:convertText(IrcToText)' id='action_input_lnk_txt'>to_txt</a>
    <a class='button' href='javascript:convertText(convertToTraditional)' id='action_input_lnk_zhant'>to_zhant</a>
    <a class='button' href='javascript:convertText(convertToSimplified)'  id='action_input_lnk_zhans'>to_zhans</a>
    <div class='clear'></div>
@@ -216,6 +217,7 @@ PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/copyleft/gpl.html">GNU G
 ChangeLog:
 <b>2012-09-07 Alpha 4</b>
  - Project hosted on Google Code.
+ - Added mIRC to Plain text conversion.
  - Added a grey chat icon to logo.
  - Fixed JS strict mode.
  - Multi-columns layout for Chinese conversion map to reduce size and editor load / diff speed, and more sensible scrollbar.
@@ -295,7 +297,8 @@ txt.en = {
      lbl_parsed  : 'People: ',
      pnl_dnd    : 'Drop log file here',
      lnk_bug    : 'Bug Report',
-     lnk_toTxt  : 'To Text',
+     lnk_toIrc  : 'To mIRC',
+     lnk_toTxt  : 'To Plain Text',
      lnk_toZhant: '',
      lnk_toZhans: '',
      btn_output : 'Output ✔',
@@ -372,6 +375,7 @@ txt.zh = {
      lbl_parsed  : '參與者: ',
      pnl_dnd    : '拖放記錄檔到此',
      lnk_bug    : '報錯',
+     lnk_toIrc  : '轉成 mIRC',
      lnk_toTxt  : '轉成純文字',
      lnk_toZhant: '轉成正體',
      lnk_toZhans: '轉成簡體',
@@ -451,7 +455,7 @@ function _(css) { return document.querySelectorAll(css); }
 
 /** Show text for given selectors */
 function set_text( css, text ) {
-   text = trim_mirc( text );
+   text = IrcToText( text );
    if ( ! text ) {
       Array.prototype.forEach.call( _(css), function(e){
          e.style.display = 'none';
@@ -469,12 +473,6 @@ function set_message( msg ) {
    set_text( '.lbl_message', msg );
 }
 
-/** Trim mIRC control code from text */
-function trim_mirc( text ) {
-   return text.replace( trim_mirc.pattern, '' );
-}
-trim_mirc.pattern = /\x03(\d\d?|##?[a-z0-9-]+#)(,(\d\d?|##?[a-z0-9-]+#))?/g;
-
 /** Escape html as text */
 function esc_html( text ) {
    if ( text && text.replace ) return text.replace( /&/g, '&amp;' ).replace ( /</g, '&lt;' );
@@ -486,12 +484,16 @@ function esc_regx( text ) {
    return text.replace( /([-[\]{}()*+?.,\\^$|#])/g, '\\$1' );
 }
 
+function is_mirc( text ) {
+   return text.match( IrcToText.pattern );
+}
+
 function is_html( text ) {
    return text.trim().match( /^<(!DOCTYPE|html)\b/i ) ? true : false;
 }
 
-/** Convert given text to plain text */
-function convertToText(text) {
+/** Convert HTML to mIRC code */
+function HtmlToIrc(text) {
   var match = text.match( /<body[^>]*>([\s\S]*)(?:<\/body|$)/i );
   if ( match ) {
      var elem = document.createElement('div');
@@ -507,6 +509,12 @@ function convertToText(text) {
   }
   return text;
 }
+
+/** Remove mIRC code to make plain text */
+function IrcToText(text) {
+  return text.replace( IrcToText.pattern, '' );
+}
+IrcToText.pattern = /(\x03+(\d\d?|##?[a-z0-9-]+#)(,(\d\d?|##?[a-z0-9-]+#))?|\x02|\x16|\x1F|\x1D)+/g;
 
 var datePattern;
 var nameBoundary;
@@ -581,7 +589,8 @@ var lastLog = null;
 switch_action.action_input_setup = function action_input_setup() {
    set_text( '#dnd' , txt.action_input.pnl_dnd  );
    set_text( '#action_input_lnk_bug', txt.action_input.lnk_bug );
-   set_text( '#action_input_lnk_txt', txt.action_input.lnk_toTxt );
+   set_text( '#action_input_lnk_irc', '' );
+   set_text( '#action_input_lnk_txt', '' );
    set_text( '#action_input_lnk_zhant', window.convertToTraditional ? txt.action_input.lnk_toZhant : '' );
    set_text( '#action_input_lnk_zhans', window.convertToSimplified ? txt.action_input.lnk_toZhans : '' );
    set_text( '#action_input_btn_output', txt.action_input.btn_output );
@@ -723,9 +732,15 @@ function parse_input() {
    if ( log.length > 1 ) {
       // Show to text link if input seems to be html
       if ( is_html( input ) ) {
-         set_text( '#action_input_lnk_txt', txt.action_input.lnk_toTxt );
-      } else {
+         set_text( '#action_input_lnk_irc', txt.action_input.lnk_toIrc );
          set_text( '#action_input_lnk_txt', '' );
+      } else {
+         set_text( '#action_input_lnk_irc', '' );
+         if ( is_mirc( input ) ) {
+            set_text( '#action_input_lnk_txt', txt.action_input.lnk_toTxt );
+         } else {
+            set_text( '#action_input_lnk_txt', '' );
+         }
       }
 
       set_message( txt.action_input.lbl_parsing );
@@ -1287,7 +1302,7 @@ function generate_output( builder ) {
 var html_builder = {
    build_line: function generate_html( colour, text ) {
       if ( ! text ) return "";
-      text = trim_mirc( text );
+      text = IrcToText( text );
       if ( ! colour ) return esc_html( text );
       var span = document.createElement('span');
       span.style.color = colour;
@@ -1319,7 +1334,7 @@ var bbc_builder = {
   build_line: function generate_bbc( colour, text ) {
      if ( ! text ) return "";
      colour = colour.trim();
-     text = trim_mirc( text );
+     text = IrcToText( text );
      if ( this.last_colour !== colour ) {
         text = ( this.last_colour ? "[/color]" : "" ) + ( colour ? "[color="+colour+"]" : "" ) + text;
      }
@@ -1350,7 +1365,7 @@ switch_action.action_about_cleanup = function action_input_cleanup() {
 }
 
 </script>
-<script>"strict mode";
+<script>"use strict";
 (function(){
 /*****************************************************************
  * Chinese conversions

@@ -23,7 +23,8 @@ if (!empty($_GET['get_source'])) {
 </head><body>
 <form action='<?php echo $_SERVER['SCRIPT_NAME'];?>' method="post" enctype="multipart/form-data" id='form'>
 
-<span style='float: right'>v1.1 <a href='?get_source=true' target='_blank'>上色器源碼</a> <a href='?get_source=true&amp;lib=compat' target='_blank'>(程序庫)</a></span>
+<span style='float: right'>v1.2 <a href='?get_source=true' target='_blank'>上色器源碼</a><br/>
+<a href='?get_source=true&amp;lib=compat' target='_blank'>(程序庫)</a> <a href='../img/_clipboard.swf' target='_blank'>(Flash 複制器)</a></span>
 <h1><a href='http://www.ellesime.net/~sheepy/'>Sheepy</a> 的<a href='http://www.ellesime.net/~sheepy/tools/log-colourer.php'>在線 IRC 記錄上色器</a></h1>
 
 <?php
@@ -91,10 +92,11 @@ if (!isset($_REQUEST['plog']) && !isset($_REQUEST['file'])) {
       <td><input type='text' name='regx_drop' id='regx_drop' size='50' value='~^[&lt;\[].{5}[&gt;\]] ((\*{3}|\S+ +\.[rdRD]|\* 新加入:|\* 已退出:|\* \S+ 设置模式为:) |.+(\S+ 现已将其昵称改为 \S+| 已经连接到你所在的irc服务器了\.| 目前在 IRC| 已离开了 IRC|在#\S+叫我名字了。|\.IP 向你开小窗)$)~S'/>
      符合的行會被整行消滅，預設除去頻道活動及投骰動作</td></tr>
     <tr><td><label for='regx_name'>人名表逹式</label></td>
-      <td><input type='text' name='regx_name' id='regx_name' size='50' value='~^([&lt;\[].{5}[&gt;\]] )(?:[&lt;\[](.+?)[&gt;\]]|\* (.+?)|(.+?)\:) ~S'/>
+      <td><input type='text' name='regx_name' id='regx_name' size='50' value='~^([&lt;\[].{5}[&gt;\]]\s+)(?:[&lt;\[](.+?)[&gt;\]]|\*\s(.+?)\s|(.+?)(?:\s|\:|：))~S'/>
       偵察到的的行會依人名加上自選色彩；首組是時間，次組是人名</td></tr>
 
     <tr><td></td><td>以上表逹式如有缺失將可能導致刪行或上色的錯誤，請連同出錯部份<a href='http://www.ellesime.net/bbs/index.php?showtopic=17378' target='_blank'>到此報告</a></td></tr>
+    <tr><td></td><td><label><input type='checkbox' name='act' value='1'> 動作與說話分開上色?</label></td></tr>
     <tr><td colspan='2'>&nbsp;</td></tr>
 
     <tr><td>上色方法</td>
@@ -174,38 +176,66 @@ if (!isset($_REQUEST['plog']) && !isset($_REQUEST['file'])) {
 
   function colour_picker($name, $char, $option = false) {
     return "<select onchange=\"document.getElementById('$name$char').value=this.style.backgroundColor=this.value\">\n".
-    ($option?"<option value='\"' style='background-color:white;color:black'>(同人名)</option>\n":'').
+    ($option=='full'?"<option value='\"' style='background-color:white;color:black'>(同人名)</option>\n":'').
     "<option value='' style='background-color:white;color:black'>(不上色或自定)</option>\n".
-    "<option value='black' style='background-color:black;color:black' >黑色</option>\n".
-    "<option value='navy' style='background-color:navy;color:navy' >藍色</option>\n".
-    "<option value='green' style='background-color:green;color:green' >綠色</option>\n".
-    "<option value='red' style='background-color:red;color:red' >紅色</option>\n".
-    "<option value='maroon' style='background-color:maroon;color:maroon' >啡色</option>\n".
-    "<option value='purple' style='background-color:purple;color:purple' >祡色</option>\n".
+    "<option value='#C50' style='background-color:#C50;color:#C50' >深橙色</option>\n".
     "<option value='orange' style='background-color:orange;color:orange' >橙色</option>\n".
+    "<option value='olive' style='background-color:olive;color:olive'>橄欖色</option>\n".
+    "<option value='green' style='background-color:green;color:green' >綠色</option>\n".
+    "<option value='teal' style='background-color:teal;color:teal' >青綠色</option>\n".
+    "<option value='blue' style='background-color:blue;color:blue' >淺藍色</option>\n".
+    "<option value='navy' style='background-color:navy;color:navy' >藍色</option>\n".
+    "<option value='#50C' style='background-color:#50C;color:#50C' >藍祡色</option>\n".
+    "<option value='purple' style='background-color:purple;color:purple' ".($option=='purple'?'selected':'')." >祡色</option>\n".
+    "<option value='maroon' style='background-color:maroon;color:maroon' >深紫紅</option>\n".
+    "<option value='red' style='background-color:red;color:red' >紅色</option>\n".
+    "<option value='fuchsia' style='background-color:fuchsia;color:fuchsia' >粉紅色</option>\n".
     "<option value='yellow' style='background-color:yellow;color:yellow' >黃色</option>\n".
     "<option value='lime' style='background-color:lime;color:lime' >淺綠色</option>\n".
-    "<option value='teal' style='background-color:teal;color:teal' >青綠色</option>\n".
     "<option value='aqua' style='background-color:aqua;color:aqua' >淺青綠色</option>\n".
-    "<option value='blue' style='background-color:blue;color:blue' >淺藍色</option>\n".
-    "<option value='fuchsia' style='background-color:fuchsia;color:fuchsia' >粉紅色</option>\n".
+    "<option value='black' style='background-color:black;color:black' >黑色</option>\n".
+    "<option value='#333' style='background-color:#333;color:#333' >深灰色</option>\n".
     "<option value='gray' style='background-color:gray;color:gray' >灰色</option>\n".
     "<option value='silver' style='background-color:silver;color:silver' >淺灰色</option>\n".
     "<option value='white' style='background-color:white;color:white'>白色</option>\n".
-    "</select> <input type='text' size='10' name='{$name}[$char]' id='$name$char' value='".($option?'"':'')."'/>\n";
+    "</select> <input type='text' size='10' name='{$name}[$char]' id='$name$char' value='".($option=='full'?'"':'').($option=='purple'?'purple':'')."'/>\n";
   }
+?>
 
-  echo "<h2><span style='color:lightgrey'>上載  &gt;</span> 第二步: 上色 <span style='color:lightgrey'>&gt; 完成</span></h2>";
-  echo "<p>請指定各人的顏色. 自定顏色可用任何瀏覽器能閱讀的格式, e.g. pink, #FFC0C0, #FCC</p><input type='hidden' name='file' value='$filename'>";
-  echo "<input type='hidden' name='regx_name' value='".htmlspecialchars($regx_name, ENT_QUOTES)."'>";
-  echo "<input type='hidden' name='colour_type' value='".htmlspecialchars($colour_type, ENT_QUOTES)."'><table>";
+<h2><span style='color:lightgrey'>上載  &gt;</span> 第二步: 上色 <span style='color:lightgrey'>&gt; 完成</span></h2>
+<p>請指定各人的顏色. 自定顏色可用任何瀏覽器能閱讀的格式, e.g. pink, #FFC0C0, #FCC</p><input type='hidden' name='file' value='<?php echo $filename?>'>
+<input type='hidden' name='regx_name' value='<?php echo htmlspecialchars($regx_name, ENT_QUOTES)?>'>
+<input type='hidden' name='colour_type' value='<?php echo htmlspecialchars($colour_type, ENT_QUOTES)?>'><table>
+
+<?php
   $full = $colour_type == 'full';
-  if ($full) echo "<tr><td>角色</td><td>人名</td><td>說話/動作</td>";
+  $act = !empty($_REQUEST['act']);
+  if ($full) {
+    if ($act)
+      echo "<tr><td>角色</td><td>人名</td><td>說話</td><td>動作</td>";
+    else
+      echo "<tr><td>角色</td><td>人名</td><td>說話/動作</td>";
+  } else {
+    if ($act)
+      echo "<tr><td>角色</td><td>說話</td><td>動作</td>";
+  }
   foreach ($result as $name => $true) {
     echo "<tr><td>$name</td><td>".colour_picker('colour', $name)."</td>";
     if ($full) echo "<td>".colour_picker('action', $name, 'full')."</td>";
+    if ($act) echo "<td>".colour_picker('act', $name, 'purple')."</td>";
     echo "</tr>\n";
   }
+?>
+
+<script language="JavaScript" type="text/javascript">
+var selects = document.getElementsByTagName("select");
+for (var i = 0; i < selects.length; i++) {
+  if (selects[i].onchange)
+    selects[i].onchange();
+}
+</script>
+
+<?php
 
 /********************************************* 3RD STEP ******************************************/
 /********************************************* 3RD STEP ******************************************/
@@ -246,6 +276,15 @@ if (!isset($_REQUEST['plog']) && !isset($_REQUEST['file'])) {
     // Line/Full coloring
     $full = $_REQUEST['colour_type']=='full';
     if ($full) $action = $_REQUEST['action'];
+    foreach ($action as $name => $a)
+      if ($a == '"')
+        $action[$name] = $colour[$name];
+    if (!empty($_REQUEST['act'])) {
+      $act = $_REQUEST['act'];
+    } else {
+      $act = '';
+    }
+
     $line = reset($data);
     do {
       if (!$line) {
@@ -253,22 +292,32 @@ if (!isset($_REQUEST['plog']) && !isset($_REQUEST['file'])) {
       } else if (preg_match($regx_name, $line, $matches)) {
         $name = findName($matches);
         if ($name && ( !empty($colour[$name]) || !empty($action[$name]) )) {
+          // Parsing
           $c = !empty($colour[$name]) ? $colour[$name] : '';
           $k = key($data);
-          $act = substr($line, strlen($matches[0]));
-          if ($full) {
+          $deed = substr($line, strlen($matches[0]));
+          if ($full || $act) {
             $time = $matches[1];
             $first = substr($matches[0], strlen($time));
+          }
+
+          if ($act && strpos($matches[0], '*') !== false) {
+            // action colouring
+            if (!empty($act[$name]))
+              $data[$k] = $time."[color=$act[$name]]$first{$deed}[/color]";
+          } else if ($full) {
+            // full colouring
             $a = !empty($action[$name]) ? $action[$name] : '';
-            if ($c && ($a == '"' || $a == $c))
-              $data[$k] = $time."[color=$c]$first{$act}[/color]";
+            if ($c && ($a == $c))
+              $data[$k] = $time."[color=$c]$first{$deed}[/color]";
             else
               $data[$k] =
                   $time .
                   ($c ? "[color=$c]{$first}[/color]" : $first ) .
-                  ($a ? "[color=$a]{$act}[/color]" : $act );
+                  ($a ? "[color=$a]{$deed}[/color]" : $deed );
           } else {
-            $data[$k] = $matches[0]."[color=$c]{$act}[/color]";
+            // line colouring
+            $data[$k] = $matches[0]."[color=$c]{$deed}[/color]";
           }
         }
       }
@@ -277,7 +326,8 @@ if (!isset($_REQUEST['plog']) && !isset($_REQUEST['file'])) {
   }
 ?>
 
-<script type='text/javascript'>
+<script language="JavaScript" type="text/javascript">
+<!-- "Flash Copier" by Jeffothy ( http://www.jeffothy.com/weblog/clipboard-copy/ ) -->
 function copy(inElement) {
   if (inElement.createTextRange) {
     var range = inElement.createTextRange();
@@ -306,8 +356,12 @@ function copy(inElement) {
 <?php echo isset($result) ? $result : implode("\n",$data) ?>
   </textarea>
 
-  <script type='text/javascript'>document.getElementById('copy').disabled = false</script>
+  <script language="JavaScript" type="text/javascript">document.getElementById('copy').disabled = false</script>
 
+  <p></p>
+  <hr/>
+
+  Flash 複制器由 Jeffothy 制作 ( <a href='http://www.jeffothy.com/weblog/clipboard-copy/'>http://www.jeffothy.com/weblog/clipboard-copy/</a> )
   <p></p>
 
   <table>

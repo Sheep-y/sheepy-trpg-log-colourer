@@ -1,0 +1,810 @@
+<!DOCTYPE html><html><head>
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <link rel="icon" href="" />
+   <title> IRC Log Colourer by Sheepy </title>
+<style>
+   html, body { margin: 0; padding: 0; height: 100%; }
+   body  {
+      background-color: #D9EFF9;
+      background-color: linear-gradiant(to bottom, #E2F4FB, #D1EAF7);
+   }
+   h1 { 
+      font: bold 24px serif;
+   }
+   body > div {
+      display: none;
+      margin: 0;
+      padding: 0;
+      padding-bottom: 72px; 
+   }
+   textarea {
+      width: 95%;
+      height: 350px;
+      background-color: white;
+   }
+   
+   #lst_colour > span {
+      display: inline-block;
+      min-width: 5em;
+      padding: 0 1ex;
+   }
+   select {
+      width: 8em;
+      background-color: transparent;
+   }
+   
+   #txt_output {
+      background-color: transparent;
+   }
+   
+   .footer {
+      position: fixed;
+      width: 100%;
+      bottom: 0; 
+   }
+   .footer a { 
+      font: bold 24px sans-serif;
+      display: inline-block;
+      width: 49%;
+      text-align: center;
+      text-decoration: none;
+      padding: 1ex 0;
+      border: 2px outset #888;
+      background-color: white;
+      background-color: rgba( 255, 255, 255, 0.75 );
+   }
+</style>
+</head><body>
+
+<h1 class="header">  </h1>
+
+ <div id="action_input">
+   <p class="lbl_message"></p>
+   <textarea id="txt_input"></textarea>
+   <div class="footer">
+      <a href="javascript:switch_action('output')" id='action_input_btn_output'> btn_output </a>
+      <a href="javascript:switch_action('colour')" id='action_input_btn_next'> btn_next </a>
+   </div>
+</div>
+
+<div id="action_colour">
+   <p class="lbl_message"></p>
+   <div id="lst_colour"></div>
+   <div class="footer">
+      <a href="javascript:switch_action('input')" id='action_colour_btn_back'> btn_back </a>
+      <a href="javascript:switch_action('preview')" id='action_colour_btn_next'> btn_next </a>
+   </div>
+</div>
+
+<div id="action_preview">
+   <p class="lbl_message"></p>
+   <pre id="pre_preview"></pre>
+   <div class="footer">
+      <a href="javascript:switch_action('colour')" id='action_preview_btn_back'> btn_back </a>
+      <a href="javascript:switch_action('output')" id='action_preview_btn_next'> btn_next </a>
+   </div>
+</div>
+
+<div id="action_output">
+   <p class="lbl_message"></p>
+   <textarea id="txt_output"></textarea>
+   <div class="footer">
+      <a href="javascript:switch_action('preview')" id='action_output_btn_back'> btn_back </a>
+      <a href="javascript:switch_action('input')" id='action_output_btn_restart'> btn_restart </a>
+   </div>
+</div>
+
+<script>//(function main(){
+"strict mode";
+
+/*****************************************************************
+ * Text
+ *****************************************************************/
+var txt = {
+  title: 'IRC Log Colourer v2 Prototype by Sheepy',
+  err_upgrade: 'Please upgrade browser', 
+  action_input: {
+     lbl_parsing : 'Detecting names...',
+     lbl_parsed  : 'People: ',
+     btn_output : 'Output >>',
+     btn_next  : 'Colouring >',
+     err_nolog : 'Please input log first.',
+     err_date  : 'Cannot parse date time.',
+     err_parse : 'Cannot parse names.',
+     err_noname: 'Cannot progress without identifying speakers.'
+  },
+  action_colour: {
+     btn_back  : '< Input',
+     btn_next  : 'Preview >',
+  },
+  action_preview: {
+     btn_back  : '< Colouring',
+     btn_next  : 'Output >',
+  },
+  action_output: {
+     btn_back    : '< Preview',
+     btn_restart : '<< Restart',
+  },
+  colour: {
+    colours: [
+      '' ,
+      ' ' ,
+      '#C50'   ,
+      'orange' ,
+      'olive'  ,
+      'green'  ,
+      'teal'   ,
+      'blue'   ,
+      'navy'   ,
+      '#50C'   ,
+      'purple' ,
+      'maroon' ,
+      'red'    ,
+      'fuchsia',
+      'yellow' ,
+      'lime'   ,
+      'aqua'   ,
+      '#F88'   ,
+      'black'  ,
+      '#333'   ,
+      'gray'   ,
+      'silver' ,
+      'white'  
+    ],
+    names: [
+      '同名字',
+      '(不上色)',
+      '深橙色',
+      '橙色',
+      '橄欖色',
+      '綠色',
+      '青綠色',
+      '淺藍色',
+      '藍色',
+      '藍祡色',
+      '祡色',
+      '深紫紅',
+      '紅色',
+      '粉紅色',
+      '黃色',
+      '淺綠色',
+      '淺青綠色',
+      '珊瑚色',
+      '黑色',
+      '深灰色',
+      '灰色',
+      '淺灰色',
+      '白色'
+    ],
+    auto: [      
+      '#C50'   ,
+      'orange' ,
+      'olive'  ,
+      'green'  ,
+      'teal'   ,
+      'blue'   ,
+      'navy'   ,
+      '#50C'   ,
+      'purple' ,
+      'maroon' ,
+      'red'    ,
+      'fuchsia'
+    ], 
+    dm: {
+      name: 'silver',
+      colour: 'red'
+    },
+    bot: {
+      name: 'red',
+      colour: ' '
+    },
+  }
+}
+
+/*****************************************************************
+ * Non-screen speciifc utilities
+ *****************************************************************/
+
+
+/** Alias for document.querySelectorAll */
+function _(css) { return document.querySelectorAll(css); }
+
+/** Show text for given selectors */
+function set_text( css, text ) {
+   Array.prototype.forEach.call( _(css), function(e){ e.textContent = text; } );
+}
+
+/** Show error message on every page */
+function set_message( msg ) {
+   set_text( '.lbl_message', msg );
+}
+
+var datePattern;
+var nameBoundary;
+var nameList = [];
+var colourList = { " version": 20120808 };
+var log = [], txtLog = [], htmlLog = [];
+
+var currentPage = '';
+
+if ( !document.querySelectorAll || !"".trim || ![].filter ) {
+   alert( txt.err_upgrade );
+   //return;
+} else {
+   window.addEventListener('DOMContentLoaded',function(){ switch_action('input'); },false);
+   set_text( '.header', txt.title );
+   document.title = txt.title; 
+}
+
+function switch_action(page) {
+   set_message('');
+
+   // Pre-switch validation & cleanup
+   var func = 'action_' + currentPage + '_cleanup';
+   if ( switch_action[func] && switch_action[func]( page ) === false ) return;
+
+   Array.prototype.forEach.call(_("body > div[id]"), function(e){ e.style.display = 'none'; });
+   _("#action_"+page)[0].style.display = 'block';
+
+   // Post-switch setup
+   func = 'action_' + page + '_setup';
+   if ( switch_action[func] ) switch_action[func]( page );
+   
+   currentPage = page;
+}
+
+
+
+/*****************************************************************
+ * Input screen and date + name parsing
+ *****************************************************************/ 
+
+var timer_checkInput = 0;
+var lastLog = "";
+
+/**
+ * Setup timer that monitors input change
+ */ 
+switch_action.action_input_setup = function action_input_setup() {
+   set_text( '#action_input_btn_output', txt.action_input.btn_output );
+   set_text( '#action_input_btn_next' , txt.action_input.btn_next  );
+   function timer_onCheckInput() {
+      var log = _('#txt_input')[0].value.trim();
+      if ( log !== lastLog ) {
+         lastLog = log;
+         parse_input();
+      }
+   }
+   timer_onCheckInput();
+   timer_checkInput = setInterval( timer_onCheckInput, 500 );
+   _('#txt_input')[0].focus();    
+}
+
+/**
+ * Check status and clear timer that monitors input change
+ */ 
+switch_action.action_input_cleanup = function action_input_cleanup() {
+   if ( log.length <= 1 ) {
+      alert( txt.action_input.err_nolog );
+      return false;
+   }
+   if ( nameList.length <= 0 ) {
+      alert( txt.action_input.err_noname );
+      return false;
+   }
+   if ( timer_checkInput ) {
+      clearInterval(timer_checkInput);
+      timer_checkInput = 0;
+   }
+   colours_load();   
+}
+
+
+/**
+ * Pre-Process log and then analyse date pattern
+ */
+function parse_input() {
+   datePattern = nameBoundary = null;
+   nameList = [];
+   txtLog = [];
+   htmlLog = [];
+
+   log = _('#txt_input')[0].value.trim().split(/\n/g);
+   if ( log.length > 1 ) {
+      set_message( txt.action_input.lbl_parsing );
+      parse_date();
+
+      // If we have date pattern, try to identify names - variable with fixed prefix and postfix
+      if ( datePattern !== null ) {
+         parse_name();
+      }
+                 
+      if ( nameList.length > 0 ) {
+         set_message( txt.action_input.lbl_parsed + nameList.concat().reverse().join(', ') );
+      } else {
+         set_message( datePattern === null ? txt.action_input.err_date : txt.action_input.err_parse );
+      }
+   } else {
+      set_message( '' );
+   }
+}
+
+/**
+ * Parse date pattern from txtlog
+ */
+function parse_date() {
+   // List of candidate patterns for date
+   var candidates = []; // [ { pattern: genPattern( log[0] ), text: log[0], count: 0 } ];
+   // Number of lines we are scanning
+   var lineCount = Math.min( log.length, 500 );
+
+   // Generate a date pattern from given string.
+   function genPattern(txt) {
+      return new RegExp( "^" + txt.replace( /([-[\]{}()*+?.,\\^$|#])/g, '\\$1' ).replace( /\d{1,2}/g, '\\d{1,2}' ).replace( /am|pm|nn/g, '(am|pm)' ).replace( /AM|PM|NN/g, '(AM|PM)' ).replace( /上午|下午|中午/g, '[上下中]午' ) );
+   }
+   // Create a new pattern from given line
+   function createPattern(i,txt) {
+      var newPattern = { pattern: genPattern(txt), text: txt, count: 1 };
+      candidates.unshift( newPattern );
+      for ( var k = 0 ; k < i ; k++ ) {
+         if ( txtLog[k].match( newPattern.pattern ) ) ++newPattern.count;
+      }
+   }
+
+   // Scan the lines
+   for ( var i = 0 ; i < lineCount ; i++ ) {
+      var line = txtLog[i] = log[i]; // todo: stript mirc
+      var found = false;
+      
+      if ( line.trim() === "" ) continue;
+
+      // Scan throgh the candidates
+      candidates.forEach( function(e) {
+         if ( line.match( e.pattern ) ) {
+            ++e.count;
+            found = true;
+         }
+      });
+
+      // If no match, find a new one from shortest match
+      if ( ! found && candidates.length > 0 ) {
+         // Loop through all candidates we have
+         for ( var j = 0 ; j < candidates.length ; j++ ) {
+            // Remove characters one by one until we found a match
+            var tmp = candidates[j].text;
+            do {
+               tmp = tmp.substr( 0, tmp.length-1 );
+               // If a match is found then use it as new pattern
+               if ( line.match( genPattern(tmp) ) ) {
+                  createPattern( i, tmp );
+                  found = true;
+               }
+            } while ( tmp.length > 5 && ! found );
+            if ( found ) break;
+         }
+      }
+
+      // If still no match, create a new pattern with this line
+      if ( ! found && line.length > 5 ) createPattern( i, line );
+   } // for ( var i = 0 ; i < lineCount ; i++ ) {
+   
+   for ( var i = lineCount ; i < log.length ; i++ ) {
+      txtLog[i] = log[i];
+   }
+
+   // After the lines are scanned, find candidate pattern with highest hit rate.
+   if ( candidates.length ) {
+      var highest = candidates[0];
+      for ( var i = candidates.length -1 ; i > 0 ; i-- ) {
+         if ( candidates[i].count > highest.count ) {
+            highest = candidates[i];
+         } else if ( candidates[i].count == highest.count && candidates[i].text.length > highest.text.length ) {
+            highest = candidates[i];
+         }
+      }
+      if ( highest.count >= Math.min( lineCount-1, Math.floor( lineCount*0.95) ) ) {
+        datePattern = highest.pattern;
+      }
+   }
+}
+
+/**
+ * Parse name pattern from log
+ */
+function parse_name() {
+   // Initialisation
+   function find_pattern( proprocess ) {
+      var candidates = []; // [ { boundary: /:/, count: 0, nameCount: 0, names: { 'name1': 3 , 'name2': 5 } ] ]
+      var special_char = ':]>"\'\t ：］＞　';
+      var pattern_count = special_char.length;
+      for ( var i = 0 ; i < pattern_count ; i++ ) {
+        candidates.push( { boundary: special_char.charAt(i), count: 0, nameCount: 0, names: {} } );
+      }
+
+      // Test each boundary on each line of log
+      var lineCount = log.length;
+      var validLines = 0;
+      for ( var i = 0 ; i < lineCount ; i++ ) {
+         // Get first part of this line
+         var line = txtLog[i].replace( datePattern, '' );
+         // Filter away chanserv / nickserv message and lines without date, then run preprocess and check result
+         if ( line.length <= 0 || line === txtLog[i] || line.match( /\b(ChanServ|NickServ)\b/i ) ) continue;
+         var trimmedLine = proprocess( line.trim().substr( 0, 20 ) );
+         if ( !trimmedLine ) continue;
+         
+         // Remove leading * and start looping through candidates 
+         trimmedLine = trimmedLine.replace( /^\*+/, '' );
+         ++validLines;
+         
+         for ( var j = 0 ; j < pattern_count ; j++ ) {
+            // Skip action lines for more accurate detection
+            var c = candidates[j];
+            var tmp = trimmedLine.substr(1).match( c.boundary );
+            if ( tmp ) {
+               ++c.count;
+               tmp = trimmedLine.substr( 0, tmp.index+1 );
+               var namelist = c.names;
+               if ( namelist[tmp] ) {
+                  ++namelist[tmp];
+               } else {
+                  ++c.nameCount;
+                  namelist[tmp] = 1;
+               }
+            }
+         }
+         
+         // After 64 valid lines, remove characters with fewer then 8 hits to speed up scanning
+         if ( validLines == 64 ) {
+            for ( var j = pattern_count-1 ; j >= 0 ; j-- ) {
+               if ( candidates[j].count < 8 ) {
+                  candidates.splice(j, 1);
+                  --pattern_count;
+               }
+            }
+            if ( pattern_count <= 0 ) break;
+         }
+      }
+
+      // With the candidates, try to find the best fit
+      if ( pattern_count > 0 ) {
+         var bestBoundary = candidates[0];
+         for ( var j = 1 ; j < pattern_count ; j++ ) {
+            var c = candidates[j];
+            // Find boundary with highest line ratio
+            if ( bestBoundary.count <= 0 || ( c.count / c.nameCount ) > ( bestBoundary.count / bestBoundary.nameCount ) ) {
+               bestBoundary = c;
+            }
+         }
+         var names = [];
+         for ( var name in bestBoundary.names ) {
+            if ( name !== "" ) names.push( name.replace(/^[<(]/, '').replace( /\d+$/, '' ).trim() );
+         }
+         return names;
+      }
+   }
+   
+   function rev_length_sort(a, b) {
+      var dl = b.length - a.length;
+      if ( dl != 0 ) return dl;
+      return a < b ? 1 : -1;
+   }
+   
+   // Parse names from normal lines
+   var a = find_pattern( function(line){ return line.indexOf('*') === 0 ? null : line } );
+   // Parse names from action lines (lines starting with *)
+   a = a.concat( find_pattern( function(line){ return line.indexOf('*') !== 0 ? null : line } ) );
+   // remove duplicates then sort by reverse length
+   nameList = a.filter( function(e,i){ return e !== "" && a.indexOf(e) === i } );
+   nameList.sort( rev_length_sort );
+}
+
+
+/*****************************************************************
+ * Colour selection screen
+ *****************************************************************/ 
+
+/**
+ * Lost colour settings, setup colour select boxes, assign initial colours if necessary
+ */ 
+switch_action.action_colour_setup = function action_colour_setup() {
+   set_text( '#action_colour_btn_back', txt.action_colour.btn_back );
+   set_text( '#action_colour_btn_next', txt.action_colour.btn_next );
+   
+   var list = _('#lst_colour')[0];
+   var special_users = find_special_users();
+   list.innerHTML = '';
+   nameList.forEach( function( name ) {
+      if ( ! colourList[name] ) {
+         if ( name === special_users.dm ) {
+            colourList[name] = {
+               name: txt.colour.dm.name, 
+               colour: txt.colour.dm.colour,
+               select: null  
+            };
+         } else if ( special_users.bots.indexOf( name ) >= 0 ) {
+            colourList[name] = {
+               name: txt.colour.bot.name, 
+               colour: txt.colour.bot.colour,
+               select: null  
+            };
+         }
+      }
+      var c = colourList[name];
+      var span = document.createElement( 'span' );
+      span.appendChild( document.createTextNode( name ) ) 
+      list.appendChild( span );
+      list.appendChild( create_colour_select( find_colour_index( c.name   ), false, function(value){ colourList[name].name   = value; colours_save(); } ) );
+      list.appendChild( create_colour_select( find_colour_index( c.colour ), true , function(value){ colourList[name].colour = value; colours_save(); } ) );
+      list.appendChild( document.createElement( 'br' ) );
+   });
+}
+
+/**
+ * Clean up select boxes and save colour settings
+ */ 
+switch_action.action_colour_cleanup = function action_colour_cleanup() {
+   _('#lst_colour')[0].innerHTML = '';
+   colours_save();
+}
+
+function colours_load() {
+   if ( document.cookie ) {
+      try {
+         colourList = JSON.parse( decodeURI( document.cookie ) );
+      } catch ( e ) {
+         if ( window.console ) console.log( "Cannto read past colours from cookie: "+e );
+      }
+   }
+   nameList.forEach( function( name ) {
+      if ( ! colourList[name] ) {
+         var colour = name.charCodeAt(0);
+         for ( var i = 1 ; i < name.length ; i++ ) colour = ( colour << 2 ) + name.charCodeAt(i);
+         colourList[name] = {
+            name: txt.colour.auto[ colour % txt.colour.auto.length ], 
+            colour: '',
+            select: null  
+         };
+      }
+   } );
+}
+
+function colours_save() {
+   document.cookie = encodeURI( JSON.stringify( colourList ) );
+}
+
+/**
+ * Given a colour, find the index in colour select list
+ */ 
+function find_colour_index( colour ) {
+   var result = txt.colour.colours.indexOf( colour );
+   return result < 0 ? 1 : result;  
+}  
+
+/**
+ * Find DM and dicebots
+ */ 
+function find_special_users() {
+   var dm = nameList[0];
+   var bots = [];
+   var count = 0;
+   nameList.forEach( function( name ) {
+      // Detect robots
+      var lc = name.toLowerCase();
+      if ( lc === 'dicebot' || lc == 'dndbot' || name.match( /[a-z]Bot$/ ) ) {
+         bots.push( name );
+      } else {
+        // Not bot; detect DM
+        var hit = 0;
+        var lastline = -2;
+        txtLog.forEach( function( line, i ) {
+           var i = line.indexOf( name );
+           if ( i > 0 && i < 20 ) {
+              ++hit;
+              if ( lastline == i+1 ) hit += 0.5; // Heavier weight to continuous lines
+              lastline = i;
+           } 
+        } );
+        
+        // If this one spoke more then current DM candidate, make it current DM candidate
+        if ( hit > count ) {
+           dm = name;
+           count = hit;
+        }
+     }
+   } );
+   
+   return { dm: dm, bots: bots };
+}
+
+function create_colour_select( index, canBlank, onChange ) {
+
+   // Create an <optoin> for a colour
+   function create_colour_option( index ) {
+      var opt = document.createElement('option');
+      opt.setAttribute('value', txt.colour.colours[index] );
+      opt.textContent = txt.colour.names[index]
+      opt.style.color = txt.colour.colours[index]; // Bug: blank would use existing colour 
+      return opt;
+   }  
+
+   // Create the select box
+   var sel = document.createElement('select'); 
+   var opt = create_colour_option( index );
+   sel.appendChild( opt );
+   sel.style.color = opt.style.color;
+   
+   // When clicked, expand colour options then remove this event handler
+   function colour_select_onMouseDown ( event ) {
+      for ( var i = canBlank ? 0 : 1 ; i < index ; i++ ) {
+         var co = create_colour_option( i );
+         sel.insertBefore( co, opt );
+      } 
+      for ( var i = index+1 ; i < txt.colour.colours.length ; i++ ) {
+         sel.appendChild( create_colour_option( i ) );
+      }
+      this.removeEventListener( 'mousedown', colour_select_onMouseDown, false );
+   }
+   sel.addEventListener( 'mousedown', colour_select_onMouseDown, false );
+
+   // When changed, update select box's colour   
+   sel.addEventListener( 'change', function() {
+      sel.style.color = sel.value;
+      if ( onChange ) onChange( sel.value );
+   }, false );   
+    
+   return sel;
+}  
+
+
+/*****************************************************************
+ * Preview screen
+ *****************************************************************/ 
+
+/**
+ * Apply preview
+ */ 
+switch_action.action_preview_setup = function action_preview_setup() {
+   set_text( '#action_preview_btn_back', txt.action_preview.btn_back );
+   set_text( '#action_preview_btn_next', txt.action_preview.btn_next );
+   _('#pre_preview')[0].innerHTML = generate_output( html_builder );
+}
+
+/**
+ * Clean up preview
+ */ 
+switch_action.action_preview_cleanup = function action_preview_cleanup() {
+   _('#pre_preview')[0].innerHTML = '';
+}
+
+
+/*****************************************************************
+ * Output screen
+ *****************************************************************/ 
+
+/**
+ * Apply preview
+ */ 
+switch_action.action_output_setup = function action_output_setup() {
+   set_text( '#action_output_btn_back', txt.action_output.btn_back );
+   set_text( '#action_output_btn_restart', txt.action_output.btn_restart );
+   _('#txt_output')[0].value = generate_output( bbc_builder );
+   _('#txt_output')[0].focus();
+   _('#txt_output')[0].select();
+}
+
+/**
+ * Clean up preview
+ */ 
+switch_action.action_output_cleanup = function action_output_cleanup() {
+   _('#txt_output')[0].value = '';
+}
+
+
+function generate_output( builder ) {
+   var result = '';
+   
+   if ( builder.open )  result += builder.open();
+
+   txtLog.forEach( function( line ) {
+      if ( ! line.match( /\b(ChanServ|NickServ)\b/i ) ) {
+        line = line.trim(); 
+   
+        var buffer = '';
+        var actor = '';
+        var index = line.length;
+        nameList.forEach( function( name ) {
+          var pos = line.indexOf( name ); 
+          if ( pos > 0 && pos < index ) {
+             actor = name;
+             index = pos;
+          }
+        } );
+        
+        var tmp = line.match( datePattern );
+        if ( tmp && actor ) {
+           tmp = tmp[0];
+
+           if ( builder.mark ) builder.mark();
+           buffer += builder.build_line( 'silver', tmp );  
+           if ( actor ) {
+              var tmp2 = line.substr( tmp.length, index-tmp.length+actor.length+1 );
+              if ( line.substr( tmp.length + tmp2.length ).match( /^\s*\.\w\s+[d\d]/ ) ) {
+                 if ( builder.reset ) builder.reset();              
+                 buffer = "";
+              } else {
+                 if ( actor && colourList[actor] && colourList[actor].colour ) {        
+                    buffer += builder.build_line( colourList[actor].name, tmp2 );
+                    buffer += builder.build_line( colourList[actor].colour, line.substr( tmp.length + tmp2.length ) );
+                 } else {
+                    buffer += builder.build_line( colourList[actor].name, line.substr( tmp.length ) );
+                 }
+              }              
+           } else {
+              buffer += builder.build_line( null, line.substr( tmp.length ) );
+           }
+        } else {
+           //buffer += builder.build_line( '', document.createTextNode( line + "\n" ) );        
+        }
+
+        if ( buffer ) {
+           buffer += "\n";
+           result += buffer;
+        }        
+      }      
+   } );
+   
+   if ( builder.close )  result += builder.close();
+   
+   return result;
+}
+
+
+var html_builder = {
+   build_line: function generate_html( colour, text ) {
+      if ( ! colour ) return document.createTextNode( text ).outerHTML;
+      var span = document.createElement('span');
+      span.style.color = colour;
+      span.appendChild( document.createTextNode( text ) );
+      return span.outerHTML;
+   }
+}
+
+
+var bbc_builder = {
+  last_colour : '',
+  mark_colour : '',
+  
+  open : function generate_bbc_open() {
+     this.last_colour = '';
+     return "";
+  },
+  
+  mark: function generate_bbc_mark() {
+     this.mark_colour = this.last_colour;
+  },  
+  
+  reset: function generate_bbc_reset() {
+     this.last_colour = this.mark_colour;
+  },  
+
+  build_line: function generate_bbc( colour, text ) {
+     if ( ! text ) return "";
+     if ( colour === undefined || !colour.trim() ) colour = "";
+     if ( this.last_colour !== colour ) {
+        text = ( this.last_colour ? "[/color]" : "" ) + ( colour ? "[color="+colour+"]" : "" ) + text;
+     } 
+     this.last_colour = colour;
+     return text; 
+  },
+  
+  close: function generate_bbc_close() {
+     return this.last_colour ? "[/color]" : ""; 
+  }
+}
+
+//})();
+</script><noscript>
+  <h1>Please Enable JavaScript</h1>
+</noscript>
+</body></html>

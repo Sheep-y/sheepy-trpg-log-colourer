@@ -1,0 +1,47 @@
+ChangeLog:
+<b>2015-07-05 Alpha 5</b>
+ - Added placeholder to input area.
+
+<b>2012-09-07 Alpha 4</b>
+ - Project hosted on Google Code.
+ - Added mIRC to Plain text conversion.
+ - Added a grey chat icon to logo.
+ - Fixed JS strict mode.
+ - Multi-columns layout for Chinese conversion map to reduce size and editor load / diff speed, and more sensible scrollbar.
+
+<b>2012-08-25 Alpha 3</b>
+ - Added cookie conflict detection
+
+<b>2012-08-21 Alpha 2</b>
+ - Better name detection by removing results with space or hash.
+ - Added drag and drop from text / html file. (need File API)
+ - Dropped HTML file automatically convert to text.
+ - Added scrolling about page and change log (English only).
+ - Added email link.
+ - Added bug report link.
+ - Added language switch (data not perserved).
+ - Added lazy loading Simplified / Traditional Chinese conversion (Chinese mode only).
+ - Added HTML to Text conversion.
+ - Added CSS Animation on buttons.
+ - Remeber options (but options not configurable yet).
+
+<b>2012-08-19 Alpha</b>
+ - Fix compatibility with log without datetime.
+ - Removed red colour from auto colour list.
+ - Make textareas resizable.
+ - Fixed footer button size and added hover effects.
+ - Added rainbow background.
+ - Added Chinese localisation.
+ - Added language detection.
+ - Added preservation of log header.
+ - Added colour star logo.
+
+<b>2012-08-08 Prototype</b>
+ - Four panels: input, colour, preview, and output.
+ - Auto detection of datetime and name formats.
+ - Separated colouring of name and action/speak.
+ - One-key output.
+ - Remember last colours using cookie.
+ - Default colour always the same with same user.
+ - Accept text from textarea.
+ - Output BBCode in textarea.

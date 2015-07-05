@@ -1,0 +1,151 @@
+* {
+   box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+   }
+
+img {
+   border: 0 none transparent;
+   padding: 0; margin: 0;
+   }
+html, body {
+   margin: 0;
+   padding: 0;
+   height: 100%;
+   }
+body  {
+   background-color: #DDD;
+   background-image: -moz-linear-gradient( 280deg, #FDD, #FED, #FFC, #DFD, #DFE, #DDF, #FCF );
+   background-image: linear-gradient( 350deg, #FDD, #FED, #FFC, #DFD, #DFE, #DDF, #FCF );
+   }
+
+div.header {
+   padding: 0;
+   display: block;
+   white-space: nowrap;
+   }
+
+.header img.lang {
+   position: relative;
+   float: right;
+   height: 32px;
+   width: 50px;
+   margin: 1ex;
+   z-index: 1;
+   }
+
+h1 {
+   margin: 1ex;
+   font: bold 24px serif;
+   display: inline-block;
+   }
+
+body > div {
+   display: none;
+   margin: 0;
+   padding: 0;
+   width: 100%;
+   }
+
+body > div[id] {
+   margin-bottom: 68px;
+   }
+
+textarea {
+   width: 100%;
+   height: 350px;
+   background-color: white;
+   resize: vertical;
+   }
+
+p {
+   margin: 1ex 0;
+   }
+
+#dnd {
+   border: 5px dashed black;
+   position: fixed;
+   width: 100%;
+   height: 100%;
+   z-index: 100;
+   background-color: rgba( 255, 255, 255, 0.7 );
+   font-size: 48px;
+   text-align: center;
+   padding-top: 1em;
+   display: none;
+   }
+
+#lst_colour > span {
+   display: inline-block;
+   min-width: 5em;
+   padding: 0 1ex;
+   }
+
+select {
+   min-width: 8em;
+   background-color: transparent;
+   }
+
+#txt_output {
+   background-color: transparent;
+   }
+
+#action_about {
+   overflow: hidden;
+   }
+
+#action_about[style] #lbl_about {
+   white-space: pre;
+   padding-left: 1em;
+   -moz-animation: vscroll 45s linear infinite;
+   }
+
+@-moz-keyframes vscroll {
+   from { margin-top: 40%; }
+   to { margin-top: -40%; }
+   }
+
+.button {
+   font: bold 18px sans-serif;
+   display: inline-block;
+   text-decoration: none;
+   color: black;
+   padding: 1ex;
+   border: 2px outset #888;
+   background-color: rgba( 255, 255, 255, 0.5 );
+   -moz-animation: fadeout 1.5s;
+   }
+
+.button:hover {
+   color: blue;
+   background-color: rgba( 255, 255, 255, 0.9);
+   -moz-animation: fadein 1.5s, glow 10s infinite;
+   }
+
+@-moz-keyframes fadeout {
+   from { background-color: rgba( 255, 255, 255, 0.9 ); }
+   to { background-color: rgba( 255, 255, 255, 0.5 ); }
+   }
+
+@-moz-keyframes fadein {
+   from { background-color: rgba( 255, 255, 255, 0.5 ); }
+   to { background-color: rgba( 255, 255, 255, 0.9 ); }
+   }
+
+@-moz-keyframes glow {
+   0% { color: #066; }
+   33% { color: #00D; }
+   67% { color: #0B0; }
+   100% { color: #066; }
+   }
+
+.clear { clear: both; }
+.footer {
+   position: fixed;
+   width: 100%;
+   bottom: 0;
+   }
+
+.footer a { font-size: 24px; text-align: center; }
+.footer.two a { width: 50%; }
+.footer.one a { width: 100%; }

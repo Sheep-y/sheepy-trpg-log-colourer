@@ -10,7 +10,7 @@ Main features:
 ## [Run now](https://cdn.rawgit.com/Sheep-y/trpg-log-colourer/tree/v20120709/log-colourer.html) ##
 (Right click to save for offline use)
 
-給文字聊天記錄用 BBCode 給各人個別上色。
+用 BBCode 將文字聊天記錄依照發言者個別上色。
 
 特色：
   * 單一 HTML 檔案﹐可在線或離線執行。

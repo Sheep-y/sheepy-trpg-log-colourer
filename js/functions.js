@@ -45,6 +45,17 @@ function is_html( text ) {
    return text.trim().match( /^<(!DOCTYPE|html)\b/i ) ? true : false;
 }
 
+function is_qq( text ) {
+   var log = text.split( '\n' );
+   var lineCount = Math.min( log.length, 100 );
+   var hit = 0;
+   for ( var i = 0 ; i < lineCount ; i++ ) {
+      var line = log[i];
+      if ( line.match( QqToIRC.datePattern ) ) ++hit;
+   }
+   return hit > lineCount * 0.4;
+}
+
 /** Convert HTML to mIRC code */
 function HtmlToIrc(text) {
   var match = text.match( /<body[^>]*>([\s\S]*)(?:<\/body|$)/i );
@@ -68,3 +79,32 @@ function IrcToText(text) {
   return text.replace( IrcToText.pattern, '' );
 }
 IrcToText.pattern = /(\x03+(\d\d?|##?[a-z0-9-]+#)(,(\d\d?|##?[a-z0-9-]+#))?|\x02|\x16|\x1F|\x1D)+/g;
+
+
+
+/**
+ * Convert QQ log which has two lines per message into IRC log.
+ */
+function QqToIRC ( text ) {
+   var lines = text.replace( /\r/g, '' ).split( '\n' );
+   var lastMatch = null, pattern = QqToIRC.datePattern, date = /^\s*20\d{2}-\d\d-\d\d\s*$/;
+   var result = '';
+   for ( var i = 0, len = lines.length ; i < len ; i++ ) {
+      var line = lines[ i ];
+      if ( ! line || line.match( date ) ) continue; // Empty line (image) or date line
+      line = line.trim();
+
+      var match = line.match( pattern );
+      // Set name and time for speaker line
+      if ( match )
+         lastMatch = match;
+      // Convert to message line for message following speaker
+      else if ( lastMatch )
+         if ( line.startsWith( '/me ' ) )
+            result += '[' + lastMatch[2] + '] * ' + lastMatch[1] + ' ' + line.substr( 4 ) + '\n';
+         else
+            result += '[' + lastMatch[2] + '] ' + lastMatch[1] + ': ' + line + '\n';
+   }
+   return result.trim();
+}
+QqToIRC.datePattern = /(.+)\(\d+\) (\d\d?:\d\d:\d\d)\s*(?:\r?\n|$)/; // QQ log date pattern

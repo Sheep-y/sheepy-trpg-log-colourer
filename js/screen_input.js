@@ -137,7 +137,7 @@ function dragdrop_show( evt ) {
 function dragdrop_hide( evt ) { _('#dnd')[0].style.display = '';      }
 
 /**
- * Given a convert function, convert input
+ * Run given function on input area and update it with result.
  */
 function convertText( func ) {
    document.getElementById('txt_input').value = func( document.getElementById('txt_input').value );
@@ -150,26 +150,24 @@ function parse_input() {
    datePattern = nameBoundary = null;
    nameList = [];
 
-   var input = document.getElementById('txt_input').value.trim();
+   var input = document.getElementById('txt_input').value.replace( /\r/g, '' ).trim();
    log = input.split(/\n/g);
    if ( log.length > 1 ) {
       // Show to text link if input seems to be html
+      set_text( '#action_input_lnk_irc', '' );
+      set_text( '#action_input_lnk_txt', '' );
+      set_text( '#action_input_lnk_qq' , '' );
       if ( is_html( input ) ) {
          set_text( '#action_input_lnk_irc', txt.action_input.lnk_toIrc );
-         set_text( '#action_input_lnk_txt', '' );
-      } else {
-         set_text( '#action_input_lnk_irc', '' );
-         if ( is_mirc( input ) ) {
-            set_text( '#action_input_lnk_txt', txt.action_input.lnk_toTxt );
-         } else {
-            set_text( '#action_input_lnk_txt', '' );
-         }
+      } else if ( is_mirc( input ) ) {
+         set_text( '#action_input_lnk_txt', txt.action_input.lnk_toTxt );
+      } else if ( is_qq( input ) ) {
+         set_text( '#action_input_lnk_qq' , txt.action_input.lnk_toIrc );
       }
 
+      // Identify date and names - the variable part surrounded by fixed prefix and postfix pattern
       set_message( txt.action_input.lbl_parsing );
       parse_date();
-
-      // Try to identify names - variable with fixed prefix and postfix
       parse_name();
 
       if ( nameList.length > 0 ) {
@@ -186,7 +184,7 @@ function parse_input() {
 /**
  * Parse date pattern from log
  */
-function parse_date() {
+function parse_date () {
    // List of candidate patterns for date
    var candidates = []; // [ { pattern: genPattern( log[0] ), text: log[0], count: 0 } ];
    // Number of lines we are scanning
@@ -213,12 +211,12 @@ function parse_date() {
       if ( line.trim() === "" ) continue;
 
       // Scan throgh the candidates
-      candidates.forEach( function(e) {
+      candidates.forEach( function( e ) {
          if ( line.match( e.pattern ) ) {
             ++e.count;
             found = true;
          }
-      });
+      } );
 
       // If no match, find a new one from shortest match
       // TODO: Reverse search to left-to-right to improve performance!
@@ -230,7 +228,7 @@ function parse_date() {
             do {
                tmp = tmp.substr( 0, tmp.length-1 );
                // If a match is found then use it as new pattern
-               if ( line.match( genPattern(tmp) ) ) {
+               if ( line.match( genPattern( tmp ) ) ) {
                   createPattern( i, tmp );
                   found = true;
                }
@@ -249,7 +247,7 @@ function parse_date() {
       for ( var i = candidates.length -1 ; i > 0 ; i-- ) {
          if ( candidates[i].count > highest.count ) {
             highest = candidates[i];
-         } else if ( candidates[i].count == highest.count && candidates[i].text.length > highest.text.length ) {
+         } else if ( candidates[i].count === highest.count && candidates[i].text.length > highest.text.length ) {
             highest = candidates[i];
          }
       }

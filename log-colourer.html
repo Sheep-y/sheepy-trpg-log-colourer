@@ -215,6 +215,9 @@ PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/copyleft/gpl.html">GNU G
 ---------------------------------------------------------------------------------------
 
 ChangeLog:
+<b>2015-07-05 Alpha 5</b>
+ - Added placeholder to input area.
+
 <b>2012-09-07 Alpha 4</b>
  - Project hosted on Google Code.
  - Added mIRC to Plain text conversion.
@@ -289,10 +292,11 @@ var options = {};
  *****************************************************************/
 var txt = {};
 txt.en = {
-  title: 'Chat Log Colourer v2 Alpha 4 by Sheepy</a>',
+  title: 'Chat Log Colourer v2 Alpha 5 by Sheepy</a>',
   err_upgrade: 'Please upgrade browser',
   err_noFileAPI: 'Your browser doesn\'t support File API, cannot read from file',
   action_input: {
+     lbl_input   : 'Paste log text here',
      lbl_parsing : 'Detecting names...',
      lbl_parsed  : 'People: ',
      pnl_dnd    : 'Drop log file here',
@@ -367,10 +371,11 @@ txt.en = {
   }
 };
 txt.zh = {
-  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 4',
+  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 5',
   err_upgrade: '請升級瀏覽器',
   err_noFileAPI: '你的瀏覽器不支援 File API，不能讀取檔案',
   action_input: {
+     lbl_input   : '請貼上記錄內文',
      lbl_parsing : '偵察名字中...',
      lbl_parsed  : '參與者: ',
      pnl_dnd    : '拖放記錄檔到此',
@@ -550,6 +555,7 @@ if ( !document.querySelectorAll || !"".trim || ![].filter ) {
    document.getElementById('header_image').src = document.getElementById( 'icon' ).href;
    options_load();
 }
+document.querySelector( '#txt_input' ).placeholder = txt.action_input.lbl_input;
 
 /**
  * Switch between actions. Would find and call action_{$page}_cleanup for current page and action_{$page}_setup for next page.

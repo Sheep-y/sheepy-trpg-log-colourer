@@ -14,6 +14,7 @@ switch_action.action_input_setup = function action_input_setup() {
    set_text( '#action_input_lnk_bug', txt.action_input.lnk_bug );
    set_text( '#action_input_lnk_irc', '' );
    set_text( '#action_input_lnk_txt', '' );
+   set_text( '#action_input_lnk_qq' , '' );
    set_text( '#action_input_lnk_zhant', window.convertToTraditional ? txt.action_input.lnk_toZhant : '' );
    set_text( '#action_input_lnk_zhans', window.convertToSimplified ? txt.action_input.lnk_toZhans : '' );
    set_text( '#action_input_btn_output', txt.action_input.btn_output );

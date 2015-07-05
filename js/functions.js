@@ -80,19 +80,23 @@ function IrcToText(text) {
 }
 IrcToText.pattern = /(\x03+(\d\d?|##?[a-z0-9-]+#)(,(\d\d?|##?[a-z0-9-]+#))?|\x02|\x16|\x1F|\x1D)+/g;
 
-
-
 /**
  * Convert QQ log which has two lines per message into IRC log.
  */
 function QqToIRC ( text ) {
    var lines = text.replace( /\r/g, '' ).split( '\n' );
-   var lastMatch = null, pattern = QqToIRC.datePattern, date = /^\s*20\d{2}-\d\d-\d\d\s*$/;
+   var lastMatch = null, pattern = QqToIRC.datePattern, date = /^(19|20|21)\d{2}-[0123]\d-[0123]\d$/;
    var result = '';
    for ( var i = 0, len = lines.length ; i < len ; i++ ) {
       var line = lines[ i ];
-      if ( ! line || line.match( date ) ) continue; // Empty line (image) or date line
+      if ( ! line ) continue; // Empty line (image)
       line = line.trim();
+
+      // Date lines are outputted as is
+      if ( line.match( date ) ) {
+         result += line + '\n';
+         continue;
+      }
 
       var match = line.match( pattern );
       // Set name and time for speaker line

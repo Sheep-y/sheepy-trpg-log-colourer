@@ -33,81 +33,80 @@ function generate_output( builder ) {
    if ( builder.open )  result += builder.open();
 
    log.forEach( function( line ) {
-      if ( ! line.match( /\b(ChanServ|NickServ)\b/i ) ) {
-        line = line.trim();
+      if ( line.match( /\b(ChanServ|NickServ)\b/i ) ) return;
+      line = line.trim();
 
-        var buffer = '';
-        var actor = '';
-        var index = line.length;
-        // Determine actor of this line
-        nameList.forEach( function( name ) {
-          var pos = line.indexOf( name );
-          if ( pos >= 0 && pos < index ) {
-             actor = name;
-             index = pos;
-          }
-        } );
-
-        // Call builder tp
-        var tmp = line.match( datePattern );
-        if ( actor ) {
-
-           // As soon as we found a name, unnamed leading part ends
-           leadingUnnamed = false;
-
-           // Start building line
-           if ( builder.mark ) builder.mark();
-           var dateLen = 0;
-           if ( tmp ) {
-              tmp = tmp[0];
-              buffer += builder.build_line( 'silver', tmp );
-              dateLen = tmp.length;
-           }
-           if ( actor ) {
-              var tmp2 = line.substr( dateLen, index-dateLen+actor.length+1 );
-              // Discard lines start with .r .roll .rh .here etc.
-              if ( line.substr( dateLen + tmp2.length ).match( /^\s*\.\w\s+[d\d]/ ) ) {
-                 if ( builder.reset ) builder.reset();
-                 buffer = "";
-              } else {
-                 if ( actor && colourList[actor] && colourList[actor].colour ) {
-                    // Coloured, output coloured line
-                    var nameColour = colourList[actor].name ? colourList[actor].name : colourList[actor].colour;
-                    buffer += builder.build_line( nameColour, tmp2 );
-                    buffer += builder.build_line( colourList[actor].colour, line.substr( dateLen + tmp2.length ) );
-                 } else {
-                    // No colour, output normal line
-                    buffer += builder.build_line( colourList[actor].name, line.substr( dateLen ) );
-                 }
-              }
-           } else {
-              // No actor, output normal line
-              buffer += builder.build_line( null, line.substr( dateLen ) );
-           }
-        } else {
-           // If still in leading section and we're set to output this section,
-           // of if we're set to output all unnamed section, build this line
-           if ( leadingUnnamed && options.preserveLeadingUnnamedLines || !options.discardUnnamedLines ) {
-              if ( tmp ) {
-                 buffer = builder.build_line( 'silver', tmp[0] );
-                 buffer += builder.build_line( '', line.substr( tmp[0].length ) );
-              } else {
-                 buffer = builder.build_line( '', line );
-              }
-           }
+      var buffer = '';
+      var actor = '';
+      var index = line.length;
+      // Determine actor of this line
+      nameList.forEach( function( name ) {
+        var pos = line.indexOf( name );
+        if ( pos >= 0 && pos < index ) {
+           actor = name;
+           index = pos;
         }
+      } );
 
-        // If line is valid, append to buffer
-        if ( buffer ) {
-           buffer += "\n";
-           result += buffer;
-        }
+      // Call builder tp
+      var tmp = line.match( datePattern );
+      if ( actor ) {
+
+         // As soon as we found a name, unnamed leading part ends
+         leadingUnnamed = false;
+
+         // Start building line
+         if ( builder.mark ) builder.mark();
+         var dateLen = 0;
+         if ( tmp ) {
+            tmp = tmp[0];
+            buffer += builder.build_line( 'silver', tmp );
+            dateLen = tmp.length;
+         }
+         if ( actor ) {
+            var tmp2 = line.substr( dateLen, index-dateLen+actor.length+1 );
+            // Discard lines start with .r .roll .rh .here etc.
+            if ( line.substr( dateLen + tmp2.length ).match( /^\s*\.\w\s+[d\d]/ ) ) {
+               if ( builder.reset ) builder.reset();
+               buffer = "";
+            } else {
+               if ( actor && colourList[actor] && colourList[actor].colour ) {
+                  // Coloured, output coloured line
+                  var nameColour = colourList[actor].name ? colourList[actor].name : colourList[actor].colour;
+                  buffer += builder.build_line( nameColour, tmp2 );
+                  buffer += builder.build_line( colourList[actor].colour, line.substr( dateLen + tmp2.length ) );
+               } else {
+                  // No colour, output normal line
+                  buffer += builder.build_line( colourList[actor].name, line.substr( dateLen ) );
+               }
+            }
+         } else {
+            // No actor, output normal line
+            buffer += builder.build_line( null, line.substr( dateLen ) );
+         }
+      } else {
+         // If still in leading section and we're set to output this section,
+         // of if we're set to output all unnamed section, build this line
+         if ( leadingUnnamed && options.preserveLeadingUnnamedLines || !options.discardUnnamedLines ) {
+            if ( tmp ) {
+               buffer = builder.build_line( 'silver', tmp[0] );
+               buffer += builder.build_line( '', line.substr( tmp[0].length ) );
+            } else {
+               buffer = builder.build_line( '', line );
+            }
+         }
+      }
+
+      // If line is valid, append to buffer
+      if ( buffer ) {
+         buffer += "\n";
+         result += buffer;
       }
    } );
 
-   if ( builder.close )  result += builder.close();
+   if ( builder.close ) result += builder.close();
 
-   return result;
+   return builder.postprocess( result );
 }
 
 
@@ -159,5 +158,9 @@ var bbc_builder = {
 
   close: function generate_bbc_close() {
      return this.last_colour ? "[/color]" : "";
+  },
+
+  postprocess: function generate_bbc_postprocess( text ) {
+     return text.replace( /\n\[\/color]/g, '[/color]\n' ).trim();
   }
 };

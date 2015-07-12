@@ -1,7 +1,7 @@
 'use-strict';
 
 txt.zh = {
-  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 5',
+  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 6',
   err_upgrade: '請升級瀏覽器',
   err_noFileAPI: '你的瀏覽器不支援 File API，不能讀取檔案',
   action_input: {

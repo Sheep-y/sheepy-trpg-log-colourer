@@ -104,11 +104,11 @@ function QqToIRC ( text ) {
          lastMatch = match;
       // Convert to message line for message following speaker
       else if ( lastMatch )
-         if ( line.startsWith( '/me ' ) )
+         if ( line.indexOf( '/me ' ) === 0 )
             result += '[' + lastMatch[2] + '] * ' + lastMatch[1] + ' ' + line.substr( 4 ) + '\n';
          else
             result += '[' + lastMatch[2] + '] ' + lastMatch[1] + ': ' + line + '\n';
    }
    return result.trim();
 }
-QqToIRC.datePattern = /(.+)\(\d+\) (\d\d?:\d\d:\d\d)\s*(?:\r?\n|$)/; // QQ log date pattern
+QqToIRC.datePattern = /(.+)(?:\(\d+\)|<[^)@]+@[^)@]+>)\s+(\d\d?:\d\d:\d\d)\s*(?:\r?\n|$)/; // QQ log date pattern

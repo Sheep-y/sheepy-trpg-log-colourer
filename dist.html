@@ -258,7 +258,7 @@ function switch_action(page) {
 <script >'use-strict';
 
 txt.en = {
-  title: 'Chat Log Colourer v2 Alpha 5 by Sheepy</a>',
+  title: 'Chat Log Colourer v2 Alpha 6 by Sheepy</a>',
   err_upgrade: 'Please upgrade browser',
   err_noFileAPI: 'Your browser doesn\'t support File API, cannot read from file',
   action_input: {
@@ -339,7 +339,7 @@ txt.en = {
 <script >'use-strict';
 
 txt.zh = {
-  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 5',
+  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 6',
   err_upgrade: '請升級瀏覽器',
   err_noFileAPI: '你的瀏覽器不支援 File API，不能讀取檔案',
   action_input: {
@@ -523,14 +523,14 @@ function QqToIRC ( text ) {
          lastMatch = match;
       // Convert to message line for message following speaker
       else if ( lastMatch )
-         if ( line.startsWith( '/me ' ) )
+         if ( line.indexOf( '/me ' ) === 0 )
             result += '[' + lastMatch[2] + '] * ' + lastMatch[1] + ' ' + line.substr( 4 ) + '\n';
          else
             result += '[' + lastMatch[2] + '] ' + lastMatch[1] + ': ' + line + '\n';
    }
    return result.trim();
 }
-QqToIRC.datePattern = /(.+)\(\d+\) (\d\d?:\d\d:\d\d)\s*(?:\r?\n|$)/; // QQ log date pattern</script>
+QqToIRC.datePattern = /(.+)(?:\(\d+\)|<[^)@]+@[^)@]+>)\s+(\d\d?:\d\d:\d\d)\s*(?:\r?\n|$)/; // QQ log date pattern</script>
 <script >/*****************************************************************
  * Input screen and date + name parsing
  *****************************************************************/

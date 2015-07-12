@@ -1,5 +1,9 @@
 ChangeLog:
-<b>2015-07-05 Alpha 5</b>
+<b>2015-07-05 Alpha 6</b>
+ - Fix IE 11 compatibility.
+ - Expanded QQ log name format.
+
+ <b>2015-07-05 Alpha 5</b>
  - Added placeholder to input area.
  - Added QQ log to IRC log conversion.
  - [/color] is now placed at end of line instead of start of line.

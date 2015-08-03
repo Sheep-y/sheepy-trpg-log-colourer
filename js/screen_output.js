@@ -106,7 +106,9 @@ function generate_output( builder ) {
 
    if ( builder.close ) result += builder.close();
 
-   return builder.postprocess( result );
+   if ( builder.postprocess ) result = builder.postprocess( result );
+
+   return result;
 }
 
 

@@ -99,7 +99,7 @@ function dragdrop_drop( evt ) {
       var reader = new FileReader();
       reader.onload = function(evt) {
          var result = evt.target.result;
-         if ( is_html( result ) ) result = convertToText( result );
+         if ( is_html( result ) ) result = HtmlToIrc( result );
          dragdrop_ok( null, result );
       };
       reader.readAsText( evt.dataTransfer.files[0] );
@@ -119,7 +119,7 @@ function dragdrop_drop( evt ) {
       req.onreadystatechange = function(evt) {
          if (httpRequest.readyState === 4) {
             var result = req.responseText;
-            if ( is_html( result ) ) result = convertToText( result );
+            if ( is_html( result ) ) result = HtmlToIrc( result );
             dragdrop_ok( null, result );
          }
       };
@@ -289,18 +289,18 @@ function parse_name() {
          for ( var j = 0 ; j < pattern_count ; j++ ) {
             // Skip action lines for more accurate detection
             var c = candidates[j];
-            var tmp = trimmedLine.substr(1).match( c.boundary );
-            if ( tmp ) {
-               tmp = trimmedLine.substr( 0, tmp.index+1 ).trim();
-               if ( tmp && tmp.indexOf(' ') < 0 && tmp.indexOf('#') < 0 ) {
-                  ++c.count;
-                  var namelist = c.names;
-                  if ( namelist[tmp] ) {
-                     ++namelist[tmp];
-                  } else {
-                     ++c.nameCount;
-                     namelist[tmp] = 1;
-                  }
+            var tmp = trimmedLine.substr( 1 ).match( c.boundary );
+            if ( ! tmp ) continue;
+
+            tmp = trimmedLine.substr( 0, tmp.index+1 ).trim();
+            if ( tmp && tmp.indexOf(' ') < 0 && tmp.indexOf('#') < 0 ) {
+               ++c.count;
+               var namelist = c.names;
+               if ( namelist[tmp] ) {
+                  ++namelist[tmp];
+               } else {
+                  ++c.nameCount;
+                  namelist[tmp] = 1;
                }
             }
          }

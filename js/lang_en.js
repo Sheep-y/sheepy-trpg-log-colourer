@@ -1,7 +1,7 @@
 'use-strict';
 
 txt.en = {
-  title: 'Chat Log Colourer v2 Alpha 6 by Sheepy</a>',
+  title: 'Chat Log Colourer v2 Alpha 7 by Sheepy</a>',
   err_upgrade: 'Please upgrade browser',
   err_noFileAPI: 'Your browser doesn\'t support File API, cannot read from file',
   action_input: {

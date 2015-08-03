@@ -208,7 +208,34 @@ select {
 </div>
 
 <div id="action_about">
-   <p id="lbl_about"><b style='font-size:x-large'>Chat Log Colour</b><b>for adding colours to TRPG logs</b>Can be used offline; just save this page as html.Code distributed under <a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL License</a>.Author: <a href="mailto:your.sheepy@gmail.com">Sheepy</a>Thanks: Aligo (for comming up with DM/bot colouring)Homepage: <a href="https://github.com/Sheep-y/trpg-log-colourer">https://github.com/Sheep-y/trpg-log-colourer</a>Developed with Notepad++ and jEdit.Logo based on "Colour Star" by AI2 for Wikimedia Commons, GNU Free Documentation License / Creative Commons 3.0 BY-SA.Chinese conversion library based on Chinese MediaWiki.Purely written in HTML 5, JavaScript 2.0, and CSS 3.---------------------------------------------------------------------------------------This program is free software: you can redistribute it and/or modify it under the termsof the GNU General Public License as published by the Free Software Foundation, eitherversion 3 of the License, or (at your option) any later version.This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;without even the implied warranty of MERCHANTABILITY or FITNESS FOR APARTICULAR PURPOSE. See the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a> for more details.---------------------------------------------------------------------------------------<?coco 'change.log' ?></p>
+   <p id="lbl_about"><b style='font-size:x-large'>Chat Log Colour</b>
+<b>for adding colours to TRPG logs</b>
+
+Can be used offline; just save this page as html.
+Code distributed under <a href="http://www.gnu.org/copyleft/gpl.html">GNU GPL License</a>.
+
+Author: <a href="mailto:your.sheepy@gmail.com">Sheepy</a>
+Thanks: Aligo (for comming up with DM/bot colouring)
+Homepage: <a href="https://github.com/Sheep-y/trpg-log-colourer">https://github.com/Sheep-y/trpg-log-colourer</a>
+Developed with Notepad++ and jEdit.
+
+Logo based on "Colour Star" by AI2 for Wikimedia Commons, GNU Free Documentation License / Creative Commons 3.0 BY-SA.
+Chinese conversion library based on Chinese MediaWiki.
+Purely written in HTML 5, JavaScript 2.0, and CSS 3.
+
+---------------------------------------------------------------------------------------
+
+This program is free software: you can redistribute it and/or modify it under the terms
+of the GNU General Public License as published by the Free Software Foundation, either
+version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a> for more details.
+
+---------------------------------------------------------------------------------------
+
+<?coco 'change.log' ?></p>
    <div class="footer two">
       <a class='button' href="javascript:switch_action(lastPage)" id='action_about_btn_back'> btn_back </a><!--
    --><a class='button' href="mailto:your.sheepy@gmail.com" id='action_about_btn_email'> btn_email </a>
@@ -258,7 +285,7 @@ function switch_action(page) {
 <script >'use-strict';
 
 txt.en = {
-  title: 'Chat Log Colourer v2 Alpha 6 by Sheepy</a>',
+  title: 'Chat Log Colourer v2 Alpha 7 by Sheepy</a>',
   err_upgrade: 'Please upgrade browser',
   err_noFileAPI: 'Your browser doesn\'t support File API, cannot read from file',
   action_input: {
@@ -339,7 +366,7 @@ txt.en = {
 <script >'use-strict';
 
 txt.zh = {
-  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 6',
+  title: 'Sheepy 的聊天記錄上色器 v2 Alpha 7',
   err_upgrade: '請升級瀏覽器',
   err_noFileAPI: '你的瀏覽器不支援 File API，不能讀取檔案',
   action_input: {
@@ -632,7 +659,7 @@ function dragdrop_drop( evt ) {
       var reader = new FileReader();
       reader.onload = function(evt) {
          var result = evt.target.result;
-         if ( is_html( result ) ) result = convertToText( result );
+         if ( is_html( result ) ) result = HtmlToIrc( result );
          dragdrop_ok( null, result );
       };
       reader.readAsText( evt.dataTransfer.files[0] );
@@ -652,7 +679,7 @@ function dragdrop_drop( evt ) {
       req.onreadystatechange = function(evt) {
          if (httpRequest.readyState === 4) {
             var result = req.responseText;
-            if ( is_html( result ) ) result = convertToText( result );
+            if ( is_html( result ) ) result = HtmlToIrc( result );
             dragdrop_ok( null, result );
          }
       };
@@ -822,18 +849,18 @@ function parse_name() {
          for ( var j = 0 ; j < pattern_count ; j++ ) {
             // Skip action lines for more accurate detection
             var c = candidates[j];
-            var tmp = trimmedLine.substr(1).match( c.boundary );
-            if ( tmp ) {
-               tmp = trimmedLine.substr( 0, tmp.index+1 ).trim();
-               if ( tmp && tmp.indexOf(' ') < 0 && tmp.indexOf('#') < 0 ) {
-                  ++c.count;
-                  var namelist = c.names;
-                  if ( namelist[tmp] ) {
-                     ++namelist[tmp];
-                  } else {
-                     ++c.nameCount;
-                     namelist[tmp] = 1;
-                  }
+            var tmp = trimmedLine.substr( 1 ).match( c.boundary );
+            if ( ! tmp ) continue;
+
+            tmp = trimmedLine.substr( 0, tmp.index+1 ).trim();
+            if ( tmp && tmp.indexOf(' ') < 0 && tmp.indexOf('#') < 0 ) {
+               ++c.count;
+               var namelist = c.names;
+               if ( namelist[tmp] ) {
+                  ++namelist[tmp];
+               } else {
+                  ++c.nameCount;
+                  namelist[tmp] = 1;
                }
             }
          }
@@ -1242,7 +1269,9 @@ function generate_output( builder ) {
 
    if ( builder.close ) result += builder.close();
 
-   return builder.postprocess( result );
+   if ( builder.postprocess ) result = builder.postprocess( result );
+
+   return result;
 }
 
 
